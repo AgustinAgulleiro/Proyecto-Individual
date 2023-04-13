@@ -1,8 +1,6 @@
 from fastapi import FastAPI
 import pandas as pd
 from collections import Counter
-import traceback
-traceback.print_exc()
 
 app = FastAPI()
 
