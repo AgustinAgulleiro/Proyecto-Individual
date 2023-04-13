@@ -85,3 +85,9 @@ def prod_per_county(tipo: str,pais: str,anio: int):
             return {f"Intenta poner un pais correcto"}
     else:
         return {f"Intenta poner tv show o movie en lugar de {tipo}"}
+
+@app.get('/get_recomendation/{rating}')
+def get_contents(rating: str):
+    df = pd.read_csv("plataformas.csv")
+    respuesta = df[df["rating_x"]== rating]
+    return {respuesta.shape[0]}
