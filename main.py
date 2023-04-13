@@ -63,3 +63,25 @@ def get_actor(platform: str, year: int):
         return f"El actor que aparece más veces es {actor_mas_repetido}, con {cantidad_actor_mas_repetido} apariciones, en el año {year} de la plataforma {platform1}"
     else:
         return f"Los valores ingresados son incorrectos intente nuevamente, recuerde que las plataformas son Netflix, Amazon, Disney o Hulu."
+
+@app.get('/prod_per_county/{tipo}/{pais}/{anio}')
+def prod_per_county(tipo: str,pais: str,anio: int):
+    if not isinstance(tipo, str):
+        raise ValueError("El valor de 'tipo' debe ser de caracteres")
+    if not isinstance(pais, str):
+        raise ValueError("El valor de 'platform' debe ser una cadena de caracteres")
+    if not isinstance(anio, int):
+        raise ValueError("El valor de 'duration_type' debe ser un entero")
+    df = pd.read_csv("plataformas.csv")
+    tipo = tipo.lower()
+    pais = pais.lower()
+    if tipo == "tv show" or tipo == "movie":
+        if pais in df["country"].unique():
+            respuesta = df[(df["type"]== tipo) & (df["country"]== pais) & (df["release_year"]== anio)].shape[0]
+            return {'pais': pais,
+                    'anio': anio,
+                    'peliculas': respuesta}
+        else:
+            return {f"Intenta poner un pais correcto"}
+    else:
+        return {f"Intenta poner tv show o movie en lugar de {tipo}"}
