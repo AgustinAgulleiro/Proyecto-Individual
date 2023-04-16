@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 import pandas as pd
 from collections import Counter
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 app = FastAPI()
 
@@ -91,3 +93,17 @@ def get_contents(rating: str):
     df = pd.read_csv("plataformas.csv")
     respuesta = df[df["rating_x"]== rating]
     return {respuesta.shape[0]}
+
+@app.get('/get_recomendation/{title}')
+def get_recomendations(tittle: str):
+    df= pd.read_csv("Modelo-MC.csv")
+    tfidf_vectorizer  = TfidfVectorizer(stop_words='english')
+    X_train = tfidf_vectorizer.fit_transform(df['description'])
+    cosine_sim = cosine_similarity(X_train, X_train)
+    top_5 = df.index[df["title"]== tittle.lower()].to_list()[0]
+    recomendation = list(enumerate(cosine_sim[top_5]))
+    recomendation = sorted(similar_movies, key=lambda x: x[1], reverse=True)
+    recomendation = [i for i in recomendation if df.index[i[0]]!= top_5]
+    recomendation = recomendation[:5]
+    respuesta = df.iloc[[i[0] for i in recomendation]]["title"].tolist()
+    return {'recomendacion': respuesta}
