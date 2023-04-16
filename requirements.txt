@@ -3,3 +3,4 @@ numpy
 uvicorn
 Counter
 FastAPI
+scikit-learn
