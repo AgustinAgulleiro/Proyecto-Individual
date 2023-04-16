@@ -21,48 +21,61 @@ def get_max_duration(year: int, platform: str, duration_type: str):
         if duration_type == "min":
             resultado = df[(df['release_year']==year) & (df['id'].str.startswith(platform)) & (df['duration_type']== duration_type) & (df["type"] == "movie")]
             idx = resultado['duration_int'].idxmax()
-            return {resultado.loc[idx, 'title']}
+            respuesta = resultado.loc[idx, 'title']
+            return {'pelicula': respuesta}
+
         else:
             return {"Para saber cual fue la pelicula maxima trata de poner en duration_type min"}
     else: 
         return {"Intente usar una plataforma existente"}
 
 @app.get('/get_score_count/{platform}/{scored}/{year}')
-def get_score_count(platform: str, scored: int, year: int):
+def get_score_count(plataforma: str, scored: int, anio: int):
     df = pd.read_csv("plataformas.csv")
-    if platform[0] in ["h", "n", "a", "d", "H", "N", "A", "D"]:
-        platform = platform.lower()[0]
-        respuesta = df[(df['id'].str.startswith(platform)) & (df["rating_y"]> scored) & (df["release_year"]== year) & (df["type"]== "movie")]
-        cantidad = respuesta.shape[0]
-        return {cantidad}
+    if plataforma[0] in ["h", "n", "a", "d", "H", "N", "A", "D"]:
+        plataform = plataforma.lower()[0]
+        respuesta = df[(df['id'].str.startswith(plataform)) & (df["rating_y"]> scored) & (df["release_year"]== anio) & (df["type"]== "movie")]
+        respuesta = respuesta.shape[0]
+        return {
+        'plataforma': plataforma,
+        'cantidad': respuesta,
+        'anio': anio,
+        'score': scored}
     else: 
         return {"Intente usar una plataforma existente"}
 
-@app.get('/get_count_platform/{platform}')
-def get_count_platform(platform: str):
+@app.get('/get_count_platform/{platforma}')
+def get_count_platform(plataforma: str):
     df = pd.read_csv("plataformas.csv")
-    if platform in ["amazon", "netflix", "hulu", "disney"]:
-        platform = platform.lower()[0]
+    if plataforma in ["amazon", "netflix", "hulu", "disney"]:
+        platform = plataforma.lower()[0]
         respuesta = df[(df["id"].str.startswith(platform)) & (df["type"]== "movie")]
-        cantidad = respuesta.shape[0]
-        return {cantidad}
+        respuesta = respuesta.shape[0]
+        return {'plataforma': plataforma, 'peliculas': respuesta}
     else: 
         return {"Intente usar una plataforma existente"}
 
 @app.get('/get_actor/{platform}/{year}')
-def get_actor(platform: str, year: int):
+def get_actor(plataforma: str, anio: int):
+    if not isinstance(plataforma, str):
+        raise ValueError("El valor de 'platform' debe ser de caracteres")
+    if not isinstance(anio, int):
+        raise ValueError("El valor de 'year' debe ser un entero")
     df = pd.read_csv("plataformas.csv")
-    if platform[0] in ["h", "n", "a", "d", "H", "N", "A", "D"]:
-        platform1 = platform
-        platform = platform.lower()[0]
-        df = df[(df['id'].str.startswith(platform)) & (df['release_year'] == year)]
+    if plataforma[0] in ["h", "n", "a", "d", "H", "N", "A", "D"]:
+        plataform = plataforma.lower()[0]
+        df = df[(df['id'].str.startswith(plataform)) & (df['release_year'] == anio)]
         actores_por_fila = df['cast'].dropna().apply(lambda x: [i.strip() for i in x.split(',') if i.strip() and not i.strip().isdigit()])
         contador_actores = Counter()
         for actores in actores_por_fila:
             contador_actores.update(actores)
-        actor_mas_repetido = contador_actores.most_common(1)[0][0]
-        cantidad_actor_mas_repetido = contador_actores[actor_mas_repetido]
-        return f"El actor que aparece más veces es {actor_mas_repetido}, con {cantidad_actor_mas_repetido} apariciones, en el año {year} de la plataforma {platform1}"
+        respuesta = contador_actores.most_common(1)[0][0]
+        respuesta1 = contador_actores[respuesta]
+        return {
+        'plataforma': plataforma,
+        'anio': anio,
+        'actor': respuesta,
+        'apariciones': respuesta1}
     else:
         return f"Los valores ingresados son incorrectos intente nuevamente, recuerde que las plataformas son Netflix, Amazon, Disney o Hulu."
 
@@ -91,8 +104,9 @@ def prod_per_county(tipo: str,pais: str,anio: int):
 @app.get('/get_contents/{rating}')
 def get_contents(rating: str):
     df = pd.read_csv("plataformas.csv")
-    respuesta = df[df["rating_x"]== rating]
-    return {respuesta.shape[0]}
+    res = df[df["rating_x"]== rating]
+    respuesta = res.shape[0]
+    return {respuesta}
 
 @app.get('/get_recomendation/{title}')
 def get_recommendationB(title: str):
