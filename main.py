@@ -88,22 +88,23 @@ def prod_per_county(tipo: str,pais: str,anio: int):
     else:
         return {f"Intenta poner tv show o movie en lugar de {tipo}"}
 
-@app.get('/get_recomendation/{rating}')
+@app.get('/get_contents/{rating}')
 def get_contents(rating: str):
     df = pd.read_csv("plataformas.csv")
     respuesta = df[df["rating_x"]== rating]
     return {respuesta.shape[0]}
 
 @app.get('/get_recomendation/{title}')
-def get_recomendations(tittle: str):
+def get_recommendationB(title: str):
     df= pd.read_csv("Modelo-MC.csv")
-    tfidf_vectorizer  = TfidfVectorizer(stop_words='english')
-    X_train = tfidf_vectorizer.fit_transform(df['description'])
-    cosine_sim = cosine_similarity(X_train, X_train)
-    top_5 = df.index[df["title"]== tittle.lower()].to_list()[0]
-    recomendation = list(enumerate(cosine_sim[top_5]))
-    recomendation = sorted(recomendation, key=lambda x: x[1], reverse=True)
-    recomendation = [i for i in recomendation if df.index[i[0]]!= top_5]
-    recomendation = recomendation[:5]
-    respuesta = df.iloc[[i[0] for i in recomendation]]["title"].tolist()
+    title = title.lower()
+    tfidf = TfidfVectorizer(stop_words='english')
+    tfidf_matrix = tfidf.fit_transform(df['description'])
+    idx = df.index[df['title'] == title.lower()].tolist()[0]
+    cosine_sim = cosine_similarity(tfidf_matrix[idx], tfidf_matrix)
+    sim_scores = list(enumerate(cosine_sim[0]))
+    sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+    sim_scores = [i for i in sim_scores if i[0] != idx]
+    sim_scores = sorted(sim_scores, key=lambda x: df['score'].iloc[x[0]], reverse=True)[:5]
+    respuesta = df.iloc[[i[0] for i in sim_scores]]['title'].tolist()
     return {'recomendacion': respuesta}
