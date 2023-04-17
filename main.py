@@ -17,9 +17,9 @@ def get_max_duration(year: int, platforma: str, dtype: str):
     df = pd.read_csv("plataformas.csv")
     if platforma[0] in ["h", "n", "a", "d", "H", "N", "A", "D"]:
         platform = platforma.lower()[0]
-        duration_type = dtype.lower()
-        if duration_type == "min":
-            resultado = df[(df['release_year']==year) & (df['id'].str.startswith(platform)) & (df['duration_type']== duration_type) & (df["type"] == "movie")]
+        dtype = dtype.lower()
+        if dtype == "min":
+            resultado = df[(df['release_year']==year) & (df['id'].str.startswith(platform)) & (df['duration_type']== dtype) & (df["type"] == "movie")]
             idx = resultado['duration_int'].idxmax()
             respuesta = resultado.loc[idx, 'title']
             return {'pelicula': respuesta}
