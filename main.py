@@ -6,18 +6,18 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 app = FastAPI()
 
-@app.get('/get_max_duration/{year}/{platform}/{duration_type}')
-def get_max_duration(year: int, platform: str, duration_type: str):
+@app.get('/get_max_duration/{year}/{platforma}/{dtype}')
+def get_max_duration(year: int, platforma: str, dtype: str):
     if not isinstance(year, int):
         raise ValueError("El valor de 'year' debe ser un número entero")
     if not isinstance(platform, str):
         raise ValueError("El valor de 'platform' debe ser una cadena de caracteres")
-    if not isinstance(duration_type, str):
+    if not isinstance(dtype, str):
         raise ValueError("El valor de 'duration_type' debe ser una cadena de caracteres")
     df = pd.read_csv("plataformas.csv")
-    if platform[0] in ["h", "n", "a", "d", "H", "N", "A", "D"]:
-        platform = platform.lower()[0]
-        duration_type = duration_type.lower()
+    if platforma[0] in ["h", "n", "a", "d", "H", "N", "A", "D"]:
+        platform = platforma.lower()[0]
+        duration_type = dtype.lower()
         if duration_type == "min":
             resultado = df[(df['release_year']==year) & (df['id'].str.startswith(platform)) & (df['duration_type']== duration_type) & (df["type"] == "movie")]
             idx = resultado['duration_int'].idxmax()
@@ -29,7 +29,7 @@ def get_max_duration(year: int, platform: str, duration_type: str):
     else: 
         return {"Intente usar una plataforma existente"}
 
-@app.get('/get_score_count/{platform}/{scored}/{year}')
+@app.get('/get_score_count/{platforma}/{scored}/{anio}')
 def get_score_count(plataforma: str, scored: int, anio: int):
     df = pd.read_csv("plataformas.csv")
     if plataforma[0] in ["h", "n", "a", "d", "H", "N", "A", "D"]:
@@ -44,7 +44,7 @@ def get_score_count(plataforma: str, scored: int, anio: int):
     else: 
         return {"Intente usar una plataforma existente"}
 
-@app.get('/get_count_platform/{platforma}')
+@app.get('/get_count_platform/{plataforma}')
 def get_count_platform(plataforma: str):
     df = pd.read_csv("plataformas.csv")
     if plataforma in ["amazon", "netflix", "hulu", "disney"]:
@@ -55,7 +55,7 @@ def get_count_platform(plataforma: str):
     else: 
         return {"Intente usar una plataforma existente"}
 
-@app.get('/get_actor/{platform}/{year}')
+@app.get('/get_actor/{plataforma}/{anio}')
 def get_actor(plataforma: str, anio: int):
     if not isinstance(plataforma, str):
         raise ValueError("El valor de 'platform' debe ser de caracteres")
@@ -106,7 +106,7 @@ def get_contents(rating: str):
     df = pd.read_csv("plataformas.csv")
     res = df[df["rating_x"]== rating]
     respuesta = res.shape[0]
-    return {respuesta}
+    return {'rating': rating, 'contenido': respuesta}
 
 @app.get('/get_recomendation/{title}')
 def get_recommendationB(title: str):
