@@ -10,7 +10,7 @@ app = FastAPI()
 def get_max_duration(year: int, platforma: str, dtype: str):
     if not isinstance(year, int):
         raise ValueError("El valor de 'year' debe ser un número entero")
-    if not isinstance(platform, str):
+    if not isinstance(platforma, str):
         raise ValueError("El valor de 'platform' debe ser una cadena de caracteres")
     if not isinstance(dtype, str):
         raise ValueError("El valor de 'duration_type' debe ser una cadena de caracteres")
