@@ -95,7 +95,7 @@ def prod_per_county(tipo: str,pais: str,anio: int):
             respuesta = df[(df["type"]== tipo) & (df["country"]== pais) & (df["release_year"]== anio)].shape[0]
             return {'pais': pais,
                     'anio': anio,
-                    'peliculas': respuesta}
+                    'contenido': respuesta}
         else:
             return {f"Intenta poner un pais correcto"}
     else:
